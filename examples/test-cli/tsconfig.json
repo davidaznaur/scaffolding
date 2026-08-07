@@ -1,0 +1,23 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "ESNext",
+    "target": "ES2022",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "esModuleInterop": true,
+    "outDir": "../../dist/examples/test-cli",
+    "rootDir": "./src",
+    "types": ["node"],
+    "baseUrl": "../..",
+    "paths": {
+      "@scalprum/core": ["packages/core/src/index.ts"],
+      "@scalprum/core/*": ["packages/core/src/*"],
+      "@scalprum/react-core": ["packages/react-core/src/index.ts"],
+      "@scalprum/react-core/*": ["packages/react-core/src/*"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": ["node_modules"]
+}

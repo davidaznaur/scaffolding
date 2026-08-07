@@ -1,5 +1,6 @@
-import { PluginStore, FeatureFlags, PluginLoaderOptions, PluginStoreOptions, PluginManifest } from '@openshift/dynamic-plugin-sdk';
+import { PluginStore, FeatureFlags, PluginLoaderOptions, PluginStoreOptions, PluginManifest, RemotePluginManifest } from '@openshift/dynamic-plugin-sdk';
 import { warnDuplicatePkg } from './warnDuplicatePkg';
+import { MFRuntimeLoader } from './MFRuntimeLoader';
 export const GLOBAL_NAMESPACE = '__scalprum__';
 export type AppMetadata<T extends {} = {}> = T & {
   name: string;
@@ -54,7 +55,6 @@ export type Scalprum<T extends Record<string, any> = Record<string, any>> = {
   pluginStore: PluginStore;
 };
 
-export type Container = Window & Factory;
 
 declare function __webpack_init_sharing__(scope: string): void;
 declare let __webpack_share_scopes__: any;
@@ -64,6 +64,8 @@ const SHARED_SCOPE_NAME = 'default';
 let scalprum: Scalprum | undefined;
 
 export const getModuleIdentifier = (scope: string, module: string) => `${scope}#${module}`;
+
+const getGlobalScope = (): any => (typeof window !== 'undefined' ? window : globalThis);
 
 export const getScalprum = () => {
   if (!scalprum) {
@@ -219,6 +221,7 @@ export const initialize = <T extends Record<string, any> = Record<string, any>>(
   pluginStoreFeatureFlags = {},
   pluginLoaderOptions = {},
   pluginStoreOptions = {},
+  loader,
 }: {
   appsConfig: AppsConfig;
   api?: T;
@@ -226,7 +229,9 @@ export const initialize = <T extends Record<string, any> = Record<string, any>>(
   pluginStoreFeatureFlags?: FeatureFlags;
   pluginLoaderOptions?: PluginLoaderOptions;
   pluginStoreOptions?: PluginStoreOptions;
+  loader?: MFRuntimeLoader;
 }): Scalprum<T> => {
+  const globalScope = getGlobalScope();
   if (scalprum) {
     scalprum.api = api || {};
     scalprum.appsConfig = appsConfig;
@@ -244,14 +249,24 @@ export const initialize = <T extends Record<string, any> = Record<string, any>>(
   };
 
   // Create new plugin store
-  const pluginStore = new PluginStore({
-    ...pluginStoreOptions,
-    loaderOptions: {
-      sharedScope: getSharedScope(defaultOptions.enableScopeWarning),
-      getPluginEntryModule: ({ name }) => (window as { [key: string]: any })[name],
-      ...pluginLoaderOptions,
-    },
-  });
+  let pluginStore: PluginStore;
+  if (loader) {
+    //Use custom MF Runtime loader (works in Node.js/Ink)
+    pluginStore = new PluginStore({
+      ...pluginStoreOptions,
+      loader,
+    });
+  } else {
+    // Use SDK's built-in PluginLoader (requires DOM)
+    pluginStore = new PluginStore({
+      ...pluginStoreOptions,
+      loaderOptions: {
+        sharedScope: getSharedScope(defaultOptions.enableScopeWarning),
+        getPluginEntryModule: ({ name }) => globalScope[name],
+        ...pluginLoaderOptions,
+      },
+    });
+  }
   pluginStore.setFeatureFlags(pluginStoreFeatureFlags);
 
   scalprum = {
@@ -372,6 +387,13 @@ export async function processManifest(
     let sdkManifest: PluginManifest;
     if (isPluginManifest(manifest)) {
       sdkManifest = manifest;
+      if ((sdkManifest as RemotePluginManifest).baseURL === 'auto' && typeof moduleManifest === 'string') {
+        const manifestUrl = new URL(moduleManifest);
+        const pathSegments = manifestUrl.pathname.split('/');
+        pathSegments.pop();
+        manifestUrl.pathname = pathSegments.join('/') || '/';
+        sdkManifest = { ...sdkManifest, baseURL: manifestUrl.toString() } as RemotePluginManifest;
+      }
     } else {
       const loadScripts: string[] = processor ? processor(manifest) : manifest[scope].entry;
       const baseURL = extractBaseURL(loadScripts[0]);

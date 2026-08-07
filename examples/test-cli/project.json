@@ -1,0 +1,30 @@
+{
+  "name": "test-cli",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "examples/test-cli/src",
+  "projectType": "application",
+  "tags": ["scope:example", "type:cli"],
+  "targets": {
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsx examples/test-cli/src/main.tsx",
+        "cwd": "{workspaceRoot}"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["examples/test-cli/**/*.{ts,tsx}"]
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit -p examples/test-cli/tsconfig.json",
+        "cwd": "{workspaceRoot}"
+      }
+    }
+  }
+}

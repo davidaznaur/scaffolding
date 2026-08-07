@@ -1,0 +1,12 @@
+{
+  "name": "sdk-plugin",
+  "version": "1.0.0",
+  "commands": [
+    {
+      "name": "cli-greet",
+      "description": "Greet from a federated CLI module",
+      "module": "./CliGreet",
+      "usage": "cli-greet [name]"
+    }
+  ]
+}

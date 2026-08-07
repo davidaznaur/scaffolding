@@ -2,9 +2,9 @@
   "name": "federation-cdn-mock",
   "private": true,
   "scripts": {
-    "build": "webpack",
+    "build": "webpack && cp static/cli-manifest.json dist/",
     "watch": "webpack --watch",
-    "serve": "wait-on dist && http-server dist -p 8001 -c-1 --cors=*"
+    "serve": "wait-on dist && cp static/cli-manifest.json dist/ && http-server dist -p 8001 -c-1 --cors=*"
   },
   "devDependencies": {
     "@module-federation/enhanced": "^0.10.0",

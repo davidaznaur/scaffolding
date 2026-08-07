@@ -1,0 +1,31 @@
+{
+  "name": "test-cli",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Example Ink.js CLI shell using Scalprum for dynamic plugin loading",
+  "main": "./dist/cli.mjs",
+  "bin": {
+    "test-cli": "./dist/cli.mjs"
+  },
+  "scripts": {
+    "build": "webpack --config webpack.config.js",
+    "start": "node dist/cli.mjs",
+    "dev": "webpack --config webpack.config.js --watch"
+  },
+  "dependencies": {
+    "ink": "^5.2.0",
+    "react": "18.3.1",
+    "@scalprum/core": "*",
+    "@scalprum/react-core": "*",
+    "@openshift/dynamic-plugin-sdk": "^9.1.0",
+    "@module-federation/enhanced": "^2.5.0",
+    "@module-federation/runtime": "*"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.18",
+    "swc-loader": "^0.2.6",
+    "typescript": "~5.9.3",
+    "webpack": "^5.94.0",
+    "webpack-cli": "^5.1.4"
+  }
+}
