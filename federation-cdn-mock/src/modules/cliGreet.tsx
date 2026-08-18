@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 interface PluginCommandProps {
   args: string[];
   onOutput: (text: string, color?: string) => void;
+  onComplete: () => void;
 }
 
 /**
@@ -10,7 +11,7 @@ interface PluginCommandProps {
  * Uses only React (shared) — no DOM, no browser APIs, no UI framework.
  * Communicates with the host CLI via the onOutput callback.
  */
-const CliGreet = ({ args, onOutput }: PluginCommandProps): React.ReactElement | null => {
+const CliGreet = ({ args, onOutput, onComplete }: PluginCommandProps): React.ReactElement | null => {
   const [done, setDone] = useState(false);
 
   useEffect(() => {
@@ -20,7 +21,8 @@ const CliGreet = ({ args, onOutput }: PluginCommandProps): React.ReactElement | 
     onOutput(`Received args: [${args.join(', ')}]`, 'gray');
     onOutput(`Timestamp: ${new Date().toISOString()}`, 'gray');
     setDone(true);
-  }, [args, onOutput]);
+    onComplete();
+  }, [args, onOutput, onComplete]);
 
   if (!done) {
     return null;

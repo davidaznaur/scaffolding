@@ -56,12 +56,47 @@ const TestSDKPlugin = new DynamicRemotePlugin({
       './ApiModule': resolve(__dirname, './src/modules/apiModule.tsx'),
       './DelayedModule': resolve(__dirname, './src/modules/delayedModule.tsx'),
       './CliGreet': resolve(__dirname, './src/modules/cliGreet.tsx'),
+      './CliListPlugins': resolve(__dirname, './src/modules/cliListPlugins.tsx'),
+      './CliFindCommand': resolve(__dirname, './src/modules/cliFindCommand.tsx'),
       './useCounterHook': resolve(__dirname, './src/modules/useCounterHook.tsx'),
       './useApiHook': resolve(__dirname, './src/modules/useApiHook.tsx'),
       './useTimerHook': resolve(__dirname, './src/modules/useTimerHook.tsx'),
       './useSharedStoreHook': resolve(__dirname, './src/modules/useSharedStoreHook.tsx'),
     },
-  },
+    customProperties: {
+      scalprum: {
+        capabilities: ['web', 'cli'],
+        cli: {
+          commands: [
+            {
+              name: 'cli-greet',
+              description: 'Greet from a federated CLI module',
+              module: './CliGreet',
+              arguments: [
+                { name: 'name', required: false, default: 'World', description: 'Name to greet' },
+              ],
+            },
+            {
+              name: 'list-plugins',
+              description: 'List all registered plugins, capabilities, and CLI commands',
+              module: './CliListPlugins',
+              options: [
+                { name: 'verbose', alias: 'v', type: 'boolean', default: false, description: 'Show descriptions and entry scripts' },
+              ],
+            },
+            {
+              name: 'find-command',
+              description: 'Find and inspect a CLI command by name (supports partial match)',
+              module: './CliFindCommand',
+              arguments: [
+                { name: 'name', required: true, description: 'Command name or partial name to search for' },
+              ],
+            },
+          ],
+        },
+      },
+    },
+  }
 });
 
 const FullManifest = new DynamicRemotePlugin({

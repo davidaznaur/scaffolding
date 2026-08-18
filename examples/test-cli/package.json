@@ -2,13 +2,14 @@
   "name": "test-cli",
   "version": "0.1.0",
   "private": true,
-  "description": "Example Ink.js CLI shell using Scalprum for dynamic plugin loading",
+  "type": "module",
+  "description": "Ink.js CLI shell using Scalprum for dynamic plugin loading — clean architecture",
   "main": "./dist/cli.mjs",
   "bin": {
     "test-cli": "./dist/cli.mjs"
   },
   "scripts": {
-    "build": "webpack --config webpack.config.js",
+    "build": "webpack --config webpack.config.cjs",
     "start": "node dist/cli.mjs",
     "dev": "webpack --config webpack.config.js --watch"
   },
