@@ -1,5 +1,5 @@
 import React, { PropsWithChildren, useMemo } from 'react';
-import { initialize, AppsConfig, Scalprum } from '@scalprum/core';
+import { initialize, AppsConfig, Scalprum, CustomRuntimeLoader } from '@scalprum/core';
 import { ScalprumContext } from './scalprum-context';
 import { FeatureFlags, PluginLoaderOptions, PluginManifest, PluginStoreOptions, PluginStoreProvider } from '@openshift/dynamic-plugin-sdk';
 import { RemoteHookProvider } from './remote-hook-provider';
@@ -21,6 +21,8 @@ export type ScalprumProviderConfigurableProps<T extends Record<string, any> = Re
   config: AppsConfig;
   api?: T;
   children?: React.ReactNode;
+    /** Custom plugin loader for non-browser environments (e.g., Node.js/Ink CLI) */
+    loader?: CustomRuntimeLoader;
   pluginSDKOptions?: {
     pluginStoreFeatureFlags?: FeatureFlags;
     pluginLoaderOptions?: PluginLoaderOptions & {
@@ -50,7 +52,7 @@ export function ScalprumProvider<T extends Record<string, any> = Record<string, 
       return props.scalprum;
     }
 
-    const { config, api, pluginSDKOptions } = props;
+    const { config, api, pluginSDKOptions, loader } = props;
     const { postProcessManifest, transformPluginManifest } = pluginSDKOptions?.pluginLoaderOptions || {};
     // SDK v4 and v5 compatibility layer
     const internalTransformPluginManifest: PluginLoaderOptions['transformPluginManifest'] =
@@ -66,6 +68,7 @@ export function ScalprumProvider<T extends Record<string, any> = Record<string, 
     return initialize<T>({
       appsConfig: config,
       api,
+      loader,
       ...pluginSDKOptions,
       pluginLoaderOptions: {
         ...pluginSDKOptions?.pluginLoaderOptions,
